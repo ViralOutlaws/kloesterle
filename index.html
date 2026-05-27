@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Klösterle Memmingen – Flyer</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  background: #1a1814;
+  font-family: 'Jost', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  gap: 28px;
+}
+
+/* ── CONTROLS ── */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.ctrl-label {
+  font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+}
+.ctrl-select {
+  font-family: 'Jost', sans-serif; font-size: 0.75rem;
+  background: #222; border: 1px solid rgba(184,155,106,0.25);
+  color: #F7F3EC; padding: 8px 14px; outline: none; cursor: pointer;
+}
+.ctrl-sep { width:1px; height:24px; background:rgba(255,255,255,0.08); }
+.btn-print {
+  font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: #1a1814; background: #8B5E3C; border: none;
+  padding: 10px 24px; cursor: pointer; font-family: 'Jost', sans-serif;
+  transition: background 0.2s;
+}
+.btn-print:hover { background: #A67650; }
+
+/* ── FLYER SHELL ── */
+.flyer {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  width: 794px;
+  min-height: 1123px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+  transition: background 0.4s, width 0.3s, min-height 0.3s;
+  flex-shrink: 0;
+}
+.flyer.fmt-a5 {
+  width: 559px;
+  min-height: 794px;
+}
+.flyer.fmt-a5 .f-title .line1 { font-size: 2rem; }
+.flyer.fmt-a5 .f-title .line2 { font-size: 2.6rem; }
+.flyer.fmt-a5 .flyer-body { padding: 32px 40px 24px; }
+.flyer.fmt-a5 .footer-bg { padding: 18px 40px; }
+
+/* THEMES */
+.t-alpin  { background: #2A1E0F; color: #F5ECD7; }
+.t-cream  { background: #F7F3EC; color: #2C2415; }
+.t-noir   { background: #0E0A05; color: #F5ECD7; }
+
+/* Gold accent */
+.t-alpin .gold  { color: #C8A26A; }
+.t-cream .gold  { color: #8B5E3C; }
+.t-noir  .gold  { color: #C8A26A; }
+
+/* Subdued text */
+.t-alpin .sub-col  { color: rgba(245,236,215,0.55); }
+.t-cream .sub-col  { color: #6B5A3E; }
+.t-noir  .sub-col  { color: rgba(245,236,215,0.45); }
+
+/* Item names */
+.t-alpin .item-name { color: #F5ECD7; }
+.t-cream .item-name { color: #2C2415; }
+.t-noir  .item-name { color: #F0E6D0; }
+
+/* Prices */
+.t-alpin .item-price { color: #C8A26A; }
+.t-cream .item-price { color: #8B5E3C; }
+.t-noir  .item-price { color: #C8A26A; }
+
+/* Separators */
+.t-alpin .item-sep { border-color: rgba(200,162,106,0.18); }
+.t-cream .item-sep { border-color: rgba(139,94,60,0.18); }
+.t-noir  .item-sep { border-color: rgba(200,162,106,0.12); }
+
+/* Footer */
+.t-alpin .footer-bg { background: #1A1008; border-top: 1px solid rgba(200,162,106,0.3); }
+.t-cream .footer-bg { background: #2C2415; }
+.t-noir  .footer-bg { background: rgba(200,162,106,0.06); border-top: 1px solid rgba(200,162,106,0.15); }
+
+.t-alpin .footer-text { color: rgba(245,236,215,0.5); }
+.t-cream .footer-text { color: rgba(247,243,236,0.65); }
+.t-noir  .footer-text { color: rgba(200,162,106,0.55); }
+
+/* QR */
+.t-alpin .qr-bg { background: rgba(0,0,0,0.4); }
+.t-cream .qr-bg { background: #2C2415; }
+.t-noir  .qr-bg { background: rgba(0,0,0,0.6); }
+
+/* Corners */
+.t-alpin .corner-col { border-color: rgba(200,162,106,0.35); }
+.t-cream .corner-col { border-color: rgba(139,94,60,0.35); }
+.t-noir  .corner-col { border-color: rgba(200,162,106,0.2); }
+
+/* Header band */
+.t-alpin .header-band { background: #1A1008; border-bottom: 1px solid rgba(200,162,106,0.3); }
+.t-cream .header-band { background: #2C2415; }
+.t-noir  .header-band { background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(200,162,106,0.15); }
+
+/* ── ACCENT BAR (alpine green + gold) ── */
+.accent-bar {
+  height: 4px;
+  background: linear-gradient(90deg, #2D5A3D, #C8A26A, #2D5A3D);
+}
+
+/* ── CORNERS ── */
+.corner {
+  position: absolute; width: 22px; height: 22px; border-style: solid;
+}
+.corner.tl { top:14px; left:14px; border-width: 1px 0 0 1px; }
+.corner.tr { top:14px; right:14px; border-width: 1px 1px 0 0; }
+.corner.bl { bottom:14px; left:14px; border-width: 0 0 1px 1px; }
+.corner.br { bottom:14px; right:14px; border-width: 0 1px 1px 0; }
+
+/* ── HEADER BAND ── */
+.header-band {
+  padding: 18px 52px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header-location {
+  font-size: 0.58rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #C8A26A;
+}
+.header-tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #C8A26A;
+}
+
+/* ── INNER ── */
+.flyer-body { padding: 36px 52px 28px; }
+
+.f-logo-text {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.f-logo-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  color: #C8A26A;
+  display: block;
+  line-height: 1;
+}
+.t-cream .f-logo-main { color: #8B5E3C; }
+.f-logo-sub {
+  font-size: 0.58rem;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-top: 4px;
+  display: block;
+}
+
+.f-title-block { text-align: center; margin-bottom: 20px; }
+.f-eyebrow {
+  font-size: 0.6rem; letter-spacing: 0.42em; text-transform: uppercase;
+  margin-bottom: 8px;
+  outline: none;
+}
+.f-title {
+  font-family: 'Cormorant Garamond', serif;
+  line-height: 1.0;
+  outline: none;
+}
+.f-title .line1 { font-size: 2.6rem; font-weight: 300; display: block; }
+.f-title .line2 { font-size: 3.4rem; font-style: italic; display: block; }
+
+.f-rule {
+  width: 48px; height: 1px;
+  background: linear-gradient(90deg, transparent, #C8A26A, transparent);
+  margin: 18px auto;
+}
+.t-cream .f-rule { background: linear-gradient(90deg, transparent, #8B5E3C, transparent); }
+
+/* ── ITEMS ── */
+.f-items { margin: 0 0 28px; }
+.f-item {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 13px 0;
+  gap: 16px;
+}
+.f-item + .f-item { border-top: 1px solid; }
+.f-item-left { flex:1; }
+.item-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-weight: 600;
+  outline: none; display: block;
+  min-width: 4px;
+}
+.item-name:empty:before { content: attr(data-ph); opacity: 0.25; }
+.item-desc {
+  font-size: 0.75rem; line-height: 1.5; margin-top: 2px;
+  outline: none; display: block;
+  min-width: 4px;
+}
+.item-desc:empty:before { content: attr(data-ph); opacity: 0.2; }
+.item-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; font-weight: 600;
+  white-space: nowrap;
+  outline: none;
+  min-width: 4px;
+}
+.item-price:empty:before { content: attr(data-ph); opacity: 0.25; }
+
+.add-item-btn {
+  display: block; width: 100%; text-align: center;
+  font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase;
+  background: transparent; border: 1px dashed rgba(200,162,106,0.3);
+  color: rgba(200,162,106,0.5); padding: 9px;
+  cursor: pointer; font-family: 'Jost', sans-serif;
+  transition: all 0.2s; margin-top: 8px;
+}
+.add-item-btn:hover { border-color: #C8A26A; color: #C8A26A; }
+
+.del-btn {
+  display: none;
+  position: absolute; top: 50%; right: 0;
+  transform: translateY(-50%);
+  background: transparent; border: none;
+  color: rgba(200,162,106,0.3); font-size: 1rem;
+  cursor: pointer; padding: 4px 6px; line-height: 1;
+  transition: color 0.2s; font-family: 'Jost', sans-serif;
+}
+.del-btn:hover { color: #c0392b; }
+.f-item { position: relative; padding-right: 28px; }
+.f-item:hover .del-btn { display: block; }
+
+/* ── FOOTER ── */
+.footer-bg {
+  padding: 22px 52px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.footer-cta { flex: 1; }
+.footer-cta-label {
+  font-size: 0.58rem; letter-spacing: 0.32em; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.footer-cta-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem; font-style: italic;
+  color: #C8A26A; margin-bottom: 4px;
+}
+.t-cream .footer-cta-main { color: #F5ECD7; }
+.footer-handle {
+  font-size: 0.72rem; letter-spacing: 0.12em;
+  outline: none;
+}
+.footer-handle:empty:before { content: "@handle"; opacity: 0.3; }
+
+.qr-bg {
+  padding: 8px; border-radius: 4px; flex-shrink: 0;
+}
+#qrcode canvas, #qrcode img {
+  display: block;
+  width: 72px !important; height: 72px !important;
+}
+
+/* ── EDIT HINT ── */
+.edit-hint {
+  font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: rgba(255,255,255,0.18);
+  text-align: center;
+}
+
+/* ── PRINT ── */
+@media print {
+  @page { margin: 0; }
+  body { background: white; padding: 0; gap: 0; }
+  .controls, .edit-hint, .add-item-btn { display: none !important; }
+  .flyer {
+    box-shadow: none;
+    margin: 0;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  .flyer.fmt-a5 {
+    width: 148mm !important;
+    min-height: 210mm !important;
+  }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  [contenteditable] { outline: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <span class="ctrl-label">Theme</span>
+  <select class="ctrl-select" onchange="setTheme(this.value)">
+    <option value="alpin">Alpin & Dunkel</option>
+    <option value="cream">Cream & Hell</option>
+    <option value="noir">Noir</option>
+  </select>
+  <div class="ctrl-sep"></div>
+  <span class="ctrl-label">Format</span>
+  <select class="ctrl-select" id="format-select" onchange="setFormat(this.value)">
+    <option value="a4">DIN A4 (210 × 297 mm)</option>
+    <option value="a5">DIN A5 (148 × 210 mm)</option>
+  </select>
+  <div class="ctrl-sep"></div>
+  <span class="ctrl-label">Klicke auf Text zum Bearbeiten</span>
+  <div class="ctrl-sep"></div>
+  <button class="btn-print" onclick="window.print()">↓ Als PDF speichern</button>
+</div>
+
+<div class="flyer t-alpin" id="flyer">
+  <div class="accent-bar"></div>
+  <div class="corner tl corner-col"></div>
+  <div class="corner tr corner-col"></div>
+  <div class="corner bl corner-col"></div>
+  <div class="corner br corner-col"></div>
+
+  <!-- HEADER BAND -->
+  <div class="header-band">
+    <span class="header-location gold">Memmingen · Allgäu</span>
+    <span class="header-tagline">Neu alpine Küche</span>
+  </div>
+
+  <div class="flyer-body">
+
+    <!-- LOGO TEXT -->
+    <div class="f-logo-text">
+      <span class="f-logo-main">Klösterle</span>
+      <span class="f-logo-sub">Restaurant · Memmingen</span>
+    </div>
+
+    <!-- TITLE -->
+    <div class="f-title-block">
+      <div class="f-eyebrow gold" contenteditable="true" spellcheck="false">Besonderer Abend</div>
+      <div class="f-title">
+        <span class="line1" contenteditable="true" spellcheck="false">Wildabend</span>
+        <span class="line2 gold" contenteditable="true" spellcheck="false">im Klösterle</span>
+      </div>
+    </div>
+
+    <div class="f-rule"></div>
+
+    <!-- DATE LINE -->
+    <div style="text-align:center; margin-bottom: 20px;">
+      <span class="f-eyebrow gold" contenteditable="true" spellcheck="false" style="display:block;">Freitag, 14. März 2025 · ab 18:30 Uhr</span>
+    </div>
+
+    <!-- ITEMS / MENÜ -->
+    <div class="f-items" id="items-list">
+      <div class="f-item item-sep">
+        <div class="f-item-left">
+          <span class="item-name" contenteditable="true" spellcheck="false" data-ph="Gerichtsname">Amuse-Bouche</span>
+          <span class="item-desc sub-col" contenteditable="true" spellcheck="false" data-ph="Zutaten">Vom Allgäuer Wild · Wacholder · Wildkräuter</span>
+        </div>
+        <span class="item-price" contenteditable="true" spellcheck="false" data-ph="0,00 €">–</span>
+        <button class="del-btn" onclick="removeItem(this)" title="Entfernen">✕</button>
+      </div>
+      <div class="f-item item-sep">
+        <div class="f-item-left">
+          <span class="item-name" contenteditable="true" spellcheck="false" data-ph="Gerichtsname">Rehcarpaccio</span>
+          <span class="item-desc sub-col" contenteditable="true" spellcheck="false" data-ph="Zutaten">Wildkräutersalat · Wacholderöl · Parmesan</span>
+        </div>
+        <span class="item-price" contenteditable="true" spellcheck="false" data-ph="0,00 €">–</span>
+        <button class="del-btn" onclick="removeItem(this)" title="Entfernen">✕</button>
+      </div>
+      <div class="f-item item-sep">
+        <div class="f-item-left">
+          <span class="item-name" contenteditable="true" spellcheck="false" data-ph="Gerichtsname">Hirschgulasch</span>
+          <span class="item-desc sub-col" contenteditable="true" spellcheck="false" data-ph="Zutaten">Allgäuer Rotkraut · Semmelknödel · Preiselbeeren</span>
+        </div>
+        <span class="item-price" contenteditable="true" spellcheck="false" data-ph="0,00 €">–</span>
+        <button class="del-btn" onclick="removeItem(this)" title="Entfernen">✕</button>
+      </div>
+      <div class="f-item item-sep">
+        <div class="f-item-left">
+          <span class="item-name" contenteditable="true" spellcheck="false" data-ph="Gerichtsname">Ziegenkäse</span>
+          <span class="item-desc sub-col" contenteditable="true" spellcheck="false" data-ph="Zutaten">Allgäuer Rohmilch · Wildblütenhonig · Nussbrot</span>
+        </div>
+        <span class="item-price" contenteditable="true" spellcheck="false" data-ph="0,00 €">–</span>
+        <button class="del-btn" onclick="removeItem(this)" title="Entfernen">✕</button>
+      </div>
+      <div class="f-item item-sep">
+        <div class="f-item-left">
+          <span class="item-name" contenteditable="true" spellcheck="false" data-ph="Gerichtsname">Apfelstrudel</span>
+          <span class="item-desc sub-col" contenteditable="true" spellcheck="false" data-ph="Zutaten">Vanilleeis · Zwetschgenröster · Sahne</span>
+        </div>
+        <span class="item-price" contenteditable="true" spellcheck="false" data-ph="0,00 €">–</span>
+        <button class="del-btn" onclick="removeItem(this)" title="Entfernen">✕</button>
+      </div>
+    </div>
+
+    <!-- PREIS ZEILE -->
+    <div style="text-align:center; margin: 4px 0 16px;">
+      <span style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem;" class="gold" contenteditable="true" spellcheck="false">5-Gänge-Menü · € 68,– pro Person</span>
+    </div>
+
+    <button class="add-item-btn" onclick="addItem()">+ Gang hinzufügen</button>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="accent-bar"></div>
+  <div class="footer-bg">
+    <div class="footer-cta">
+      <div class="footer-cta-label gold">Reservierung & Infos</div>
+      <div class="footer-cta-main">@kloesterle.memmingen</div>
+      <div class="footer-handle footer-text" contenteditable="true" spellcheck="false">Im Klösterle 1 · 87700 Memmingen · Tel. 08331 9619166</div>
+    </div>
+    <div class="qr-bg" id="qr-wrap">
+      <div id="qrcode"></div>
+    </div>
+  </div>
+</div>
+
+<div class="edit-hint">✏ Alle Texte direkt anklicken und bearbeiten · Dann „Als PDF speichern"</div>
+
+<script>
+  new QRCode(document.getElementById("qrcode"), {
+    text: "https://www.instagram.com/kloesterle.memmingen",
+    width: 72, height: 72,
+    colorDark: "#F5ECD7",
+    colorLight: "#1A1008",
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
+  const themes = ['alpin','cream','noir'];
+  function setTheme(t) {
+    const f = document.getElementById('flyer');
+    themes.forEach(th => f.classList.remove('t-'+th));
+    f.classList.add('t-'+t);
+    document.getElementById('qrcode').innerHTML = '';
+    const isDark = t !== 'cream';
+    new QRCode(document.getElementById("qrcode"), {
+      text: "https://www.instagram.com/kloesterle.memmingen",
+      width: 72, height: 72,
+      colorDark: isDark ? "#F5ECD7" : "#2C2415",
+      colorLight: isDark ? "#1A1008" : "#F7F3EC",
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+
+  function setFormat(f) {
+    const flyer = document.getElementById('flyer');
+    if (f === 'a5') {
+      flyer.classList.add('fmt-a5');
+    } else {
+      flyer.classList.remove('fmt-a5');
+    }
+  }
+
+  function addItem() {
+    const list = document.getElementById('items-list');
+    const div = document.createElement('div');
+    div.className = 'f-item item-sep';
+    div.innerHTML = `
+      <div class="f-item-left">
+        <span class="item-name" contenteditable="true" spellcheck="false" data-ph="Gerichtsname"></span>
+        <span class="item-desc sub-col" contenteditable="true" spellcheck="false" data-ph="Zutaten"></span>
+      </div>
+      <span class="item-price" contenteditable="true" spellcheck="false" data-ph="0,00 €"></span>
+      <button class="del-btn" onclick="removeItem(this)" title="Entfernen">✕</button>
+    `;
+    list.appendChild(div);
+    div.querySelector('.item-name').focus();
+  }
+
+  function removeItem(btn) {
+    const item = btn.closest('.f-item');
+    if (document.querySelectorAll('.f-item').length > 1) {
+      item.remove();
+    }
+  }
+
+  document.getElementById('items-list').addEventListener('keydown', e => {
+    if (e.key === 'Backspace') {
+      const el = document.activeElement;
+      if (el.classList.contains('item-name') && el.textContent === '') {
+        const item = el.closest('.f-item');
+        if (document.querySelectorAll('.f-item').length > 1) {
+          item.remove();
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>
